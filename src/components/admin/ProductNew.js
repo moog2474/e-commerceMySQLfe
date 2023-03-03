@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
+import { Dna, InfinitySpin } from 'react-loader-spinner'
 
 
 
@@ -137,6 +138,7 @@ export default function ProductNew({ modalProduct, setModalProduct, getId, isEdi
         else {
             setProduct({ ...product, thumbimage: arr[0] })
         }
+
         setLoading(false)
     }
 
@@ -196,9 +198,14 @@ export default function ProductNew({ modalProduct, setModalProduct, getId, isEdi
                             >
 
                             </input>
-                            {loading ? <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div> : ''}
+                            {loading ? <Dna
+                                visible={true}
+                                height="80"
+                                width="80"
+                                ariaLabel="dna-loading"
+                                wrapperStyle={{}}
+                                wrapperClass="dna-wrapper"
+                            /> : ''}
 
                         </div>
                         <div className='d-flex justify-content-between align-items-center col-12 mt-2 mb-2'>
@@ -213,9 +220,10 @@ export default function ProductNew({ modalProduct, setModalProduct, getId, isEdi
                                     sendFile("images", arr)
                                 }}
                             ></input>
-                            {loading ? <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div> : ''}
+                            {loading ? <InfinitySpin
+                                width='200'
+                                color="#4fa94d"
+                            /> : ''}
                         </div>
                     </div>
                     <div className='col d-flex gap-3 mb-2 justify-content-between align-items-center'>

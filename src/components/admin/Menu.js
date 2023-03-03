@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { AiFillDelete, AiFillEdit } from 'react-icons/ai'
+import { DndContext, closestCenter } from '@dnd-kit/core';
+import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import MenuNew from './MenuNew'
+import { SortableItems } from '../SortableItems';
 
 
 export default function Menu() {
-
     const [menu, setMenu] = useState([])
     const [err, setErr] = useState("")
     const [modal, setModal] = useState(false)
@@ -15,7 +17,7 @@ export default function Menu() {
         fetch("http://localhost:8000/be/menu")
             .then(res => res.json())
             .then((data) => {
-                console.log(data.result);
+                // console.log(data.result);
                 setMenu(data.result)
                 // setMenu(data.result.filter((a) => a.type === "adminMenu"))
             })
@@ -29,7 +31,7 @@ export default function Menu() {
         })
             .then(res => res.json())
             .then((data) => {
-                console.log(data.result);
+                // console.log(data.result);
                 setMenu(data.result)
             })
             .catch((err) => console.log(err))
@@ -41,7 +43,18 @@ export default function Menu() {
         setGetMenuId(id)
     }
 
+    function handleDragEnd(event) {
+        const { active, over } = event;
 
+        if (active.id !== over.id) {
+            setMenu((items) => {
+                const activeIndex = items.indexOf(active.id);
+                const overIndex = items.indexOf(over.id)
+
+                return arrayMove(items, activeIndex, overIndex)
+            })
+        }
+    }
 
     return (
         <div>
@@ -57,30 +70,38 @@ export default function Menu() {
                             <td className='col-1'>#</td>
                             <td className='col-2'>Menu name</td>
                             <td className='col-2'>Type</td>
-                            <td className='col-1'>Position</td>
                             <td className='col-1'>Edit/Delete</td>
                         </tr>
                     </thead>
-                    <tbody>
-                        {menu.map(({ menuName, position, id, type }, index) => {
-                            return (
-                                <tr className='border-bottom' key={index}>
-                                    <td className='col-1'>{index + 1}</td>
-                                    <td className='col-2'>{menuName}</td>
-                                    <td className='col-2'>{type}</td>
-                                    <td className='col-1'>{position}</td>
-                                    <td className='col-1 d-flex w-100 justify-content-center gap-3'>
-                                        <AiFillEdit
-                                            onClick={() => editMenu(id)}
-                                            size={20} />
-                                        <AiFillDelete
-                                            onClick={() => deleteMenu(id)} size={20} />
-                                    </td>
-                                </tr>)
-
-
-                        })}
-                    </tbody>
+                    <DndContext
+                        collisionDetection={closestCenter}
+                        onDragEnd={handleDragEnd}
+                    >
+                        <tbody>
+                            <SortableContext
+                                items={menu}
+                                strategy={verticalListSortingStrategy}
+                            >
+                                {menu.map(({ menuName, id, type, position }, index) => {
+                                    return (
+                                        <SortableItems key={index} id={position}>
+                                            <td className='col-1'>{index + 1}</td>
+                                            <td className='col-2'>{menuName}</td>
+                                            <td className='col-2'>{type}</td>
+                                            <td className='col-1 d-flex w-100 justify-content-center gap-3'>
+                                                <AiFillEdit
+                                                    onClick={() => editMenu(id)}
+                                                    size={20} />
+                                                <AiFillDelete
+                                                    onClick={() => deleteMenu(id)} size={20} />
+                                            </td>
+                                        </SortableItems>
+                                    )
+                                }
+                                )}
+                            </SortableContext>
+                        </tbody>
+                    </DndContext>
                 </table>
 
                 <MenuNew
@@ -91,8 +112,8 @@ export default function Menu() {
                     getMenuId={getMenuId}
                     setMenu={setMenu}
                 />
-            </div>
+            </div >
 
-        </div>
+        </div >
     )
 }
